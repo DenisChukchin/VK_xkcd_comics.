@@ -39,10 +39,10 @@ def fetch_picture(picture_url):
 
 
 def download_picture_to_computer(picture_url, filename):
-    photo_response = requests.get(picture_url)
-    photo_response.raise_for_status()
+    picture_response = requests.get(picture_url)
+    picture_response.raise_for_status()
     with open(f"{filename}", 'wb') as file:
-        file.write(photo_response.content)
+        file.write(picture_response.content)
 
 
 def get_url_for_download_picture(vk_token):
@@ -70,15 +70,14 @@ def upload_picture_to_server(vk_token, filename):
 
 
 def save_picture_on_server(vk_token, filename):
-    photo_details = upload_picture_to_server(vk_token, filename)
+    picture_details = upload_picture_to_server(vk_token, filename)
     headers = {
         'Authorization': f'Bearer {vk_token}'
     }
     params = {
-        'Authorization': f'Bearer {vk_token}',
-        'photo': photo_details.get('photo'),
-        'server': photo_details.get('server'),
-        'hash': photo_details.get('hash'),
+        'photo': picture_details.get('photo'),
+        'server': picture_details.get('server'),
+        'hash': picture_details.get('hash'),
         'v': '5.131'
     }
     url = 'https://api.vk.com/method/photos.saveWallPhoto'
@@ -88,9 +87,9 @@ def save_picture_on_server(vk_token, filename):
 
 
 def publication_picture_on_vk_group_wall(vk_token, vk_group_id, comment, filename):
-    photo_details = save_picture_on_server(vk_token, filename)
-    owner_id = photo_details['response'][0]['owner_id']
-    photo_id = photo_details['response'][0]['id']
+    picture_details = save_picture_on_server(vk_token, filename)
+    owner_id = picture_details['response'][0]['owner_id']
+    photo_id = picture_details['response'][0]['id']
     headers = {
         'Authorization': f'Bearer {vk_token}'
     }

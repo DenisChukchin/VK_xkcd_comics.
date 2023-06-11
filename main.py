@@ -60,14 +60,14 @@ def get_url_for_download_picture(vk_token):
 
 
 def upload_picture_to_server(vk_token, filename):
+    url = get_url_for_download_picture(vk_token)
     with open(f'{filename}', 'rb') as file:
-        url = get_url_for_download_picture(vk_token)
         files = {
             'photo': file,
         }
         response = requests.post(url, files=files)
-        response.raise_for_status()
-        return response.json()
+    response.raise_for_status()
+    return response.json()
 
 
 def save_picture_on_server(vk_token, filename):

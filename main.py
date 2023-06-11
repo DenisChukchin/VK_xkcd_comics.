@@ -88,7 +88,7 @@ def save_picture_on_server(vk_token, filename):
     return response.json()
 
 
-def publication_picture_on_vk_group_wall(vk_token, vk_group_id, comment, filename):
+def publish_picture_on_vk_group_wall(vk_token, vk_group_id, comment, filename):
     picture_details = save_picture_on_server(vk_token, filename)
     owner_id = picture_details['response'][0]['owner_id']
     photo_id = picture_details['response'][0]['id']
@@ -124,7 +124,7 @@ def main():
     try:
         picture_url, comment = get_picture_url_and_comment(comics_number)
         filename = fetch_picture(picture_url)
-        publication_picture_on_vk_group_wall(vk_token, vk_group_id, comment, filename)
+        publish_picture_on_vk_group_wall(vk_token, vk_group_id, comment, filename)
     except requests.exceptions.HTTPError as error:
         print(error)
     finally:

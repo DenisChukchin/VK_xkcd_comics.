@@ -57,7 +57,9 @@ def get_url_for_download_picture(vk_token):
     url = 'https://api.vk.com/method/photos.getWallUploadServer'
     response = requests.get(url, headers=headers, params=params)
     response.raise_for_status()
-    return response.json()['response']['upload_url']
+    vk_response = response.json()
+    check_vk_response(vk_response)
+    return vk_response['response']['upload_url']
 
 
 def upload_picture_to_server(filename, url):
@@ -67,7 +69,9 @@ def upload_picture_to_server(filename, url):
         }
         response = requests.post(url, files=files)
     response.raise_for_status()
-    return response.json()
+    vk_response = response.json()
+    check_vk_response(vk_response)
+    return vk_response
 
 
 def save_picture_on_server(vk_token, picture_information):
@@ -83,12 +87,14 @@ def save_picture_on_server(vk_token, picture_information):
     url = 'https://api.vk.com/method/photos.saveWallPhoto'
     response = requests.post(url, headers=headers, params=params)
     response.raise_for_status()
-    return response.json()
+    vk_response = response.json()
+    check_vk_response(vk_response)
+    owner_id = vk_response['response'][0]['owner_id']
+    photo_id = vk_response['response'][0]['id']
+    return owner_id, photo_id
 
 
-def publish_picture_on_vk_group_wall(vk_token, vk_group_id, comment, picture_details):
-    owner_id = picture_details['response'][0]['owner_id']
-    photo_id = picture_details['response'][0]['id']
+def publish_picture_on_vk_group_wall(vk_token, vk_group_id, comment, owner_id, photo_id):
     headers = {
         'Authorization': f'Bearer {vk_token}'
     }
@@ -102,7 +108,16 @@ def publish_picture_on_vk_group_wall(vk_token, vk_group_id, comment, picture_det
     url = 'https://api.vk.com/method/wall.post'
     response = requests.post(url, headers=headers, params=params)
     response.raise_for_status()
-    return response.json()
+    vk_response = response.json()
+    check_vk_response(vk_response)
+    return vk_response
+
+
+def check_vk_response(vk_response):
+    try:
+        vk_response
+    except requests.exceptions.HTTPError as error:
+        raise error
 
 
 def check_vk_tokens():
@@ -123,8 +138,8 @@ def main():
         filename = fetch_picture(picture_url)
         url = get_url_for_download_picture(vk_token)
         picture_information = upload_picture_to_server(filename, url)
-        picture_details = save_picture_on_server(vk_token, picture_information)
-        publish_picture_on_vk_group_wall(vk_token, vk_group_id, comment, picture_details)
+        owner_id, photo_id = save_picture_on_server(vk_token, picture_information)
+        publish_picture_on_vk_group_wall(vk_token, vk_group_id, comment, owner_id, photo_id)
     except requests.exceptions.HTTPError as error:
         print(error)
     finally:

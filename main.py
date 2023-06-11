@@ -21,8 +21,9 @@ def get_picture_url_and_comment(comics_number):
     url = f"https://xkcd.com/{comics_number}/info.0.json"
     response = requests.get(url)
     response.raise_for_status()
-    picture_and_comment = [response.json()['img'], response.json()['alt']]
-    return picture_and_comment
+    picture_details = response.json()
+    picture_url_and_comment = [picture_details['img'], picture_details['alt']]
+    return picture_url_and_comment
 
 
 def get_extension_from_file(url):

@@ -60,8 +60,7 @@ def get_url_for_download_picture(vk_token):
     return response.json()['response']['upload_url']
 
 
-def upload_picture_to_server(vk_token, filename):
-    url = get_url_for_download_picture(vk_token)
+def upload_picture_to_server(filename, url):
     with open(f'{filename}', 'rb') as file:
         files = {
             'photo': file,
@@ -71,15 +70,14 @@ def upload_picture_to_server(vk_token, filename):
     return response.json()
 
 
-def save_picture_on_server(vk_token, filename):
-    picture_details = upload_picture_to_server(vk_token, filename)
+def save_picture_on_server(vk_token, picture_information):
     headers = {
         'Authorization': f'Bearer {vk_token}'
     }
     params = {
-        'photo': picture_details.get('photo'),
-        'server': picture_details.get('server'),
-        'hash': picture_details.get('hash'),
+        'photo': picture_information.get('photo'),
+        'server': picture_information.get('server'),
+        'hash': picture_information.get('hash'),
         'v': '5.131'
     }
     url = 'https://api.vk.com/method/photos.saveWallPhoto'
@@ -88,8 +86,7 @@ def save_picture_on_server(vk_token, filename):
     return response.json()
 
 
-def publish_picture_on_vk_group_wall(vk_token, vk_group_id, comment, filename):
-    picture_details = save_picture_on_server(vk_token, filename)
+def publish_picture_on_vk_group_wall(vk_token, vk_group_id, comment, picture_details):
     owner_id = picture_details['response'][0]['owner_id']
     photo_id = picture_details['response'][0]['id']
     headers = {
@@ -124,7 +121,10 @@ def main():
     try:
         picture_url, comment = get_picture_url_and_comment(comics_number)
         filename = fetch_picture(picture_url)
-        publish_picture_on_vk_group_wall(vk_token, vk_group_id, comment, filename)
+        url = get_url_for_download_picture(vk_token)
+        picture_information = upload_picture_to_server(filename, url)
+        picture_details = save_picture_on_server(vk_token, picture_information)
+        publish_picture_on_vk_group_wall(vk_token, vk_group_id, comment, picture_details)
     except requests.exceptions.HTTPError as error:
         print(error)
     finally:

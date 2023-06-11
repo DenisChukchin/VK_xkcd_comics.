@@ -1,6 +1,7 @@
 import requests
 import os
 import random
+import glob
 from urllib.parse import urlparse, unquote
 from dotenv import load_dotenv
 
@@ -107,10 +108,6 @@ def publication_picture_on_vk_group_wall(vk_token, vk_group_id, comment, filenam
     return response.json()
 
 
-def delete_picture_from_a_computer(filename):
-    return os.remove(f"{filename}")
-
-
 def main():
     load_dotenv()
     vk_token = os.getenv('VK_TOKEN')
@@ -120,9 +117,11 @@ def main():
         picture_url, comment = get_picture_url_and_comment(comics_number)
         filename = fetch_picture(picture_url)
         publication_picture_on_vk_group_wall(vk_token, vk_group_id, comment, filename)
-        delete_picture_from_a_computer(filename)
     except requests.exceptions.HTTPError as error:
         print(error)
+    finally:
+        for file in glob.glob("picture*"):
+            os.remove(file)
 
 
 if __name__ == "__main__":

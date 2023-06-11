@@ -108,10 +108,18 @@ def publication_picture_on_vk_group_wall(vk_token, vk_group_id, comment, filenam
     return response.json()
 
 
-def main():
+def check_vk_tokens():
     load_dotenv()
-    vk_token = os.getenv('VK_TOKEN')
-    vk_group_id = os.getenv('GROUP_ID')
+    try:
+        vk_token = os.environ['VK_TOKEN']
+        vk_group_id = os.environ['GROUP_ID']
+        return vk_token, vk_group_id
+    except KeyError as error:
+        exit(f'Проблема с токеном: {error}')
+
+
+def main():
+    vk_token, vk_group_id = check_vk_tokens()
     comics_number = get_random_comics_number()
     try:
         picture_url, comment = get_picture_url_and_comment(comics_number)

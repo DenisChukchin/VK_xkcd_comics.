@@ -115,7 +115,7 @@ def check_users_credentials():
         vk_group_id = os.environ['GROUP_ID']
         return vk_token, vk_group_id
     except KeyError as error:
-        exit(f'Проблема с токеном: {error}')
+        raise KeyError(f'Проблема с токеном: {error}')
 
 
 def main():

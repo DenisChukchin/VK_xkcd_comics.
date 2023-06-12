@@ -23,8 +23,7 @@ def get_picture_url_and_comment(comics_number):
     response = requests.get(url)
     response.raise_for_status()
     picture_details = response.json()
-    picture_url_and_comment = [picture_details['img'], picture_details['alt']]
-    return picture_url_and_comment
+    return picture_details['img'], picture_details['alt']
 
 
 def get_extension_from_file(url):
@@ -34,8 +33,7 @@ def get_extension_from_file(url):
 
 
 def fetch_picture(picture_url):
-    template_name = ["picture", get_extension_from_file(picture_url)]
-    filename = "".join(template_name)
+    filename = f"picture.{get_extension_from_file(picture_url)}"
     download_picture_to_computer(picture_url, filename)
     return filename
 

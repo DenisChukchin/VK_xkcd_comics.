@@ -106,8 +106,7 @@ def check_vk_response(vk_response):
         raise error
 
 
-def check_vk_tokens():
-    load_dotenv()
+def check_users_credentials():
     try:
         vk_token = os.environ['VK_TOKEN']
         vk_group_id = os.environ['GROUP_ID']
@@ -117,7 +116,8 @@ def check_vk_tokens():
 
 
 def main():
-    vk_token, vk_group_id = check_vk_tokens()
+    load_dotenv()
+    vk_token, vk_group_id = check_users_credentials()
     try:
         total_comics = get_last_comics_number()
         filename, comment = download_random_comics_picture(total_comics)

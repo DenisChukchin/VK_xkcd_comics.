@@ -103,10 +103,8 @@ def publish_picture_on_vk_group_wall(vk_token, vk_group_id, comment, owner_id, p
 
 
 def check_vk_response(vk_response):
-    try:
-        vk_response
-    except requests.exceptions.HTTPError as error:
-        raise error
+    if 'error' in vk_response:
+        raise requests.HTTPError(vk_response['error']['error_msg'])
 
 
 def check_users_credentials():

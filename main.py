@@ -57,17 +57,20 @@ def upload_picture_to_server(filename, url):
     response.raise_for_status()
     vk_response = response.json()
     check_vk_response(vk_response)
-    return vk_response
+    photo = vk_response['photo']
+    server = vk_response['server']
+    photo_hash = vk_response['hash']
+    return photo, server, photo_hash
 
 
-def save_picture_on_server(vk_token, picture_information):
+def save_picture_on_server(vk_token, photo, server, photo_hash):
     headers = {
         'Authorization': f'Bearer {vk_token}'
     }
     params = {
-        'photo': picture_information.get('photo'),
-        'server': picture_information.get('server'),
-        'hash': picture_information.get('hash'),
+        'photo': photo,
+        'server': server,
+        'hash': photo_hash,
         'v': '5.131'
     }
     url = 'https://api.vk.com/method/photos.saveWallPhoto'
@@ -122,8 +125,8 @@ def main():
         total_comics = get_last_comics_number()
         filename, comment = download_random_comics_picture(total_comics)
         url = get_url_for_download_picture(vk_token)
-        picture_information = upload_picture_to_server(filename, url)
-        owner_id, photo_id = save_picture_on_server(vk_token, picture_information)
+        photo, server, photo_hash = upload_picture_to_server(filename, url)
+        owner_id, photo_id = save_picture_on_server(vk_token, photo, server, photo_hash)
         publish_picture_on_vk_group_wall(vk_token, vk_group_id, comment, owner_id, photo_id)
     except requests.exceptions.HTTPError as error:
         print(error)

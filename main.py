@@ -13,36 +13,24 @@ def get_last_comics_number():
     return response.json()['num']
 
 
-def get_random_comics_number():
-    total_comics = get_last_comics_number()
-    return random.randint(1, total_comics)
-
-
-def get_picture_url_and_comment(comics_number):
-    url = f"https://xkcd.com/{comics_number}/info.0.json"
-    response = requests.get(url)
-    response.raise_for_status()
-    picture_details = response.json()
-    return picture_details['img'], picture_details['alt']
-
-
 def get_extension_from_file(url):
     encode_link = unquote(url, encoding="utf-8", errors="replace")
     chopped_link = urlparse(encode_link)
     return os.path.splitext(chopped_link.path)[1]
 
 
-def fetch_picture(picture_url):
-    filename = f"picture.{get_extension_from_file(picture_url)}"
-    download_picture_to_computer(picture_url, filename)
-    return filename
-
-
-def download_picture_to_computer(picture_url, filename):
-    picture_response = requests.get(picture_url)
+def download_random_comics_picture(total_comics):
+    random_comics_number = random.randint(1, total_comics)
+    url = f"https://xkcd.com/{random_comics_number}/info.0.json"
+    response = requests.get(url)
+    response.raise_for_status()
+    picture_details = response.json()
+    filename = f"picture.{get_extension_from_file(picture_details['img'])}"
+    picture_response = requests.get(picture_details['img'])
     picture_response.raise_for_status()
     with open(f"{filename}", 'wb') as file:
         file.write(picture_response.content)
+    return filename, picture_details['alt']
 
 
 def get_url_for_download_picture(vk_token):
@@ -130,10 +118,9 @@ def check_vk_tokens():
 
 def main():
     vk_token, vk_group_id = check_vk_tokens()
-    comics_number = get_random_comics_number()
     try:
-        picture_url, comment = get_picture_url_and_comment(comics_number)
-        filename = fetch_picture(picture_url)
+        total_comics = get_last_comics_number()
+        filename, comment = download_random_comics_picture(total_comics)
         url = get_url_for_download_picture(vk_token)
         picture_information = upload_picture_to_server(filename, url)
         owner_id, photo_id = save_picture_on_server(vk_token, picture_information)
